@@ -8,6 +8,7 @@ import java.util.Set;
 import moxy.locators.PresenterBinderLocator;
 import moxy.presenter.InjectPresenter;
 import moxy.presenter.PresenterField;
+import moxy.presenter.PresenterType;
 
 public class MvpProcessor {
 
@@ -36,7 +37,13 @@ public class MvpProcessor {
         Class<? extends MvpPresenter> presenterClass = presenterField.getPresenterClass();
         PresenterStore presenterStore = MvpFacade.getInstance().getPresenterStore();
 
-        String tag = delegateTag + "$" + presenterField.getTag(target);
+        PresenterType type = presenterField.getPresenterType();
+        String tag;
+        if (type == PresenterType.LOCAL) {
+            tag = delegateTag + "$" + presenterField.getTag(target);
+        } else {
+            tag = presenterField.getTag(target);
+        }
 
         //noinspection unchecked
         MvpPresenter<? super Delegated> presenter = presenterStore.get(tag);
@@ -51,6 +58,7 @@ public class MvpProcessor {
             return null;
         }
 
+        presenter.setPresenterType(type);
         presenter.setTag(tag);
         presenter.setPresenterClass(presenterClass);
         presenterStore.add(tag, presenter);

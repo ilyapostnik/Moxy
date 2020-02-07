@@ -23,6 +23,29 @@ import javax.lang.model.element.TypeElement
 /**
  * 18.12.2015
  *
+ *  * <p>
+ * Generates PresenterBinder for class annotated with &#64;InjectPresenters
+ * <p>
+ * for Sample class with single injected presenter
+ * <pre>
+ * {@code
+ *
+ * &#64;InjectPresenters
+ * public class Sample extends MvpActivity implements MyView
+ * {
+ *
+ * &#64;InjectPresenter(type = PresenterType.LOCAL, tag = "SOME_TAG")
+ * com.arellomobile.example.MyPresenter mMyPresenter;
+ *
+ * }
+ *
+ * }
+ * </pre>
+ * <p>
+ * PresenterBinderClassGenerator generates PresenterBinder
+ * <p>
+ *
+ *
  * Generates PresenterBinder for a class annotated with @InjectPresenters
  */
 class PresenterBinderClassGenerator : JavaFilesGenerator<TargetClassInfo> {
@@ -129,7 +152,12 @@ class PresenterBinderClassGenerator : JavaFilesGenerator<TargetClassInfo> {
     ): MethodSpec {
         return MethodSpec.constructorBuilder()
             .addModifiers(Modifier.PUBLIC)
-            .addStatement("super($1S, $2S, $3T.class)", tag, field.presenterId, field.typeName)
+            .addStatement("super($1S, $2S, $3T.class)",
+                    tag,
+                    field.presenterProviderType!!.declaringClass,
+                    field.presenterProviderType!!.name,
+                    field.presenterId,
+                    field.typeName)
             .build()
     }
 

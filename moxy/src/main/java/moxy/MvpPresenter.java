@@ -5,20 +5,17 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import moxy.locators.ViewStateLocator;
 import moxy.viewstate.MvpViewState;
+import moxy.presenter.PresenterType;
 
 @InjectViewState
 public abstract class MvpPresenter<View extends MvpView> {
 
     private boolean isFirstLaunch = true;
-
     private String tag;
-
+    private PresenterType mPresenterType;
     private Set<View> views;
-
     private View viewStateAsView;
-
     private MvpViewState<View> viewState;
-
     private Class<? extends MvpPresenter> presenterClass;
 
     OnDestroyListener coroutineScope;
@@ -124,6 +121,14 @@ public abstract class MvpPresenter<View extends MvpView> {
             return viewState.isInRestoreState(view);
         }
         return false;
+    }
+
+    PresenterType getPresenterType() {
+        return mPresenterType;
+    }
+
+    void setPresenterType(PresenterType presenterType) {
+        mPresenterType = presenterType;
     }
 
     String getTag() {

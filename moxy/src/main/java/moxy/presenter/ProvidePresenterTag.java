@@ -27,5 +27,7 @@ public @interface ProvidePresenterTag {
 
     Class<? extends MvpPresenter<?>> presenterClass();
 
+    PresenterType type() default PresenterType.LOCAL;
+
     String presenterId() default EMPTY;
 }

@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import moxy.presenter.PresenterField;
+import moxy.presenter.PresenterType;
 
 /**
  * Date: 18-Dec-15
@@ -221,7 +222,7 @@ public class MvpDelegate<Delegated> {
         Set<MvpPresenter> allChildPresenters = presentersCounter.getAll(delegateTag);
         for (MvpPresenter presenter : allChildPresenters) {
             boolean isRejected = presentersCounter.rejectPresenter(presenter, delegateTag);
-            if (isRejected) {
+            if (isRejected && presenter.getPresenterType() != PresenterType.GLOBAL) {
                 presenterStore.remove(presenter.getTag());
                 closeCoroutineScope(presenter);
                 presenter.onDestroy();

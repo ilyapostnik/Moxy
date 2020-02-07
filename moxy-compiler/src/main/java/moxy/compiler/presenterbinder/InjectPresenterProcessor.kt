@@ -8,6 +8,7 @@ import moxy.compiler.getAnnotationMirror
 import moxy.compiler.getValueAsString
 import moxy.compiler.getValueAsTypeMirror
 import moxy.presenter.InjectPresenter
+import moxy.presenter.PresenterType
 import moxy.presenter.ProvidePresenter
 import moxy.presenter.ProvidePresenterTag
 import javax.lang.model.element.Element
@@ -63,10 +64,13 @@ class InjectPresenterProcessor : ElementProcessor<VariableElement, TargetClassIn
                 val fieldType: TypeMirror = element.asDeclaredType().asElement().asType()
                 val fieldName = element.toString()
 
+                val type = annotation.getValueAsString(InjectPresenter::type)
+                val presenterType = type?.let { PresenterType.valueOf(type) }?: run {PresenterType.LOCAL}
+
                 val tag = annotation.getValueAsString(InjectPresenter::tag)
                 val presenterId = annotation.getValueAsString(InjectPresenter::presenterId)
 
-                TargetPresenterField(fieldType, fieldName, tag, presenterId)
+                TargetPresenterField(fieldType, fieldName, tag, presenterType, presenterId)
             }
     }
 
@@ -84,10 +88,12 @@ class InjectPresenterProcessor : ElementProcessor<VariableElement, TargetClassIn
                 val methodName = element.simpleName.toString()
                 val returnType = element.returnType as DeclaredType
 
+                val type = annotation.getValueAsString(ProvidePresenter::type)
+                val presenterType = type?.let { PresenterType.valueOf(type) }?: run {PresenterType.LOCAL}
                 val tag = annotation.getValueAsString(ProvidePresenter::tag)
                 val presenterId = annotation.getValueAsString(ProvidePresenter::presenterId)
 
-                PresenterProviderMethod(returnType, methodName, tag, presenterId)
+                PresenterProviderMethod(returnType, methodName, tag, presenterType, presenterId)
             }
     }
 
@@ -105,9 +111,13 @@ class InjectPresenterProcessor : ElementProcessor<VariableElement, TargetClassIn
                 val methodName = element.simpleName.toString()
 
                 val presenterClass = annotation.getValueAsTypeMirror(ProvidePresenterTag::presenterClass)!!
+
+                val type = annotation.getValueAsString(ProvidePresenterTag::type)
+                val presenterType = type?.let { PresenterType.valueOf(type) }?: run {PresenterType.LOCAL}
+
                 val presenterId = annotation.getValueAsString(ProvidePresenterTag::presenterId)
 
-                TagProviderMethod(presenterClass, methodName, presenterId)
+                TagProviderMethod(presenterClass, methodName, presenterId, presenterType)
             }
     }
 
@@ -122,6 +132,7 @@ class InjectPresenterProcessor : ElementProcessor<VariableElement, TargetClassIn
 
             for (field in fields) {
                 if (field.type != providerTypeMirror) continue
+                if (field.presenterType != presenterProvider.presenterType) continue
                 if (field.tag != presenterProvider.tag) continue
                 if (field.presenterId != presenterProvider.presenterId) continue
 
@@ -138,6 +149,7 @@ class InjectPresenterProcessor : ElementProcessor<VariableElement, TargetClassIn
 
         for (tagProvider in tagProviders) {
             for (field in fields) {
+                if (field.presenterProviderType != tagProvider.presenterType) continue
                 if (field.type != tagProvider.presenterClass) continue
                 if (field.presenterId != tagProvider.presenterId) continue
 

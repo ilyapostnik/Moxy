@@ -13,5 +13,7 @@ public @interface InjectPresenter {
 
     String tag() default EMPTY;
 
+    PresenterType type() default PresenterType.LOCAL;
+
     String presenterId() default EMPTY;
 }
